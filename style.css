@@ -1,0 +1,2127 @@
+* {
+    font-family: 'Press Start 2P', cursive;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #1a0f05;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    image-rendering: pixelated;
+}
+
+/* ── Overlay backdrop ── */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.88);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+/* ── Panel box ── */
+.overlay-panel {
+    background: #0e0a04;
+    border: 3px solid #c9a227;
+    box-shadow: 0 0 0 6px #0e0a04, 0 0 0 9px #c9a227, 0 0 40px rgba(201,162,39,0.3);
+
+    width: min(92vw, 760px);
+    max-height: 88vh;
+    overflow-y: auto;
+
+    padding: clamp(20px, 4vw, 48px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(12px, 2vw, 26px);
+
+    animation: panelGlow 3s ease-in-out infinite;
+}
+
+@media (max-width: 600px) {
+    .overlay-panel {
+        width: 94vw;
+        padding: 18px;
+        box-shadow: 0 0 0 3px #0e0a04, 0 0 0 5px #c9a227;
+    }
+
+    .btn-row {
+        flex-direction: column;
+    }
+
+    #character-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+.overlay-title {
+    font-size: clamp(16px, 3vw, 40px);
+    text-align: center;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #c9a227 30%, #ffe585 50%, #c9a227 70%);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(201,162,39,0.5));
+    animation: titleShimmer 4s ease-in-out infinite;
+}
+
+.overlay-subtitle {
+    color: #a08a5a;
+    font-size: clamp(8px, 1.2vw, 11px);
+    text-align: center;
+    line-height: 1.8;
+}
+
+.gold-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    opacity: 0.5;
+    color: #c9a227;
+    font-size: clamp(7px, 1vw, 10px);
+    animation: diamondPulse 2s ease-in-out infinite alternate;
+}
+
+.gold-divider::before,
+.gold-divider::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid #c9a227;
+}
+
+.divider-gap {
+    margin-top: 8px;
+}
+
+/* ── Form elements ── */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.form-group label {
+    color: #c9a227;
+    font-size: clamp(9px, 1.2vw, 12px);
+    letter-spacing: 1px;
+}
+
+.label-arrow {
+    position: relative;
+    top: -2px;
+}
+
+#team-name {
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    color: #e8d5a3;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    padding: 12px 14px;
+    outline: none;
+    width: 100%;
+}
+
+#member-name,
+#member-email,
+#team-name-input,
+#team-name-confirm {
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    color: #e8d5a3;
+    font-family: 'Press Start 2P', cursive;
+    font-size: clamp(9px, 1.2vw, 13px);
+    padding: clamp(10px, 1.5vw, 16px) clamp(12px, 1.8vw, 18px);
+    outline: none;
+    width: 100%;
+    transition: box-shadow 0.3s ease;
+}
+
+#team-name::placeholder,
+#member-name::placeholder,
+#member-email::placeholder,
+#team-name-input::placeholder,
+#team-name-confirm::placeholder { color: #5a4a2a; }
+
+#team-name:focus,
+#member-name:focus,
+#member-email:focus,
+#team-name-input:focus,
+#team-name-confirm:focus {
+    border-color: #c9a227;
+    box-shadow: 0 0 14px rgba(201,162,39,0.25);
+    outline: none;
+}
+
+#team-name.input-error { border-color: #e05252; box-shadow: 0 0 8px rgba(224,82,82,0.4); }
+
+.input-maxed {
+    border-color: #e05252 !important;
+    box-shadow: 0 0 8px rgba(224,82,82,0.4) !important;
+}
+
+.max-length-warning {
+    display: none;
+    color: #e05252;
+    font-size: 7px;
+    margin-top: 5px;
+}
+
+.char-counter {
+    display: block;
+    text-align: right;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 7px;
+    color: #c9a227;
+    margin-top: 5px;
+}
+
+.char-counter-full {
+    color: #e05252;
+}
+
+/* ── Member count selector ── */
+.count-selector {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.count-btn {
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    color: #c9a227;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.count-btn:hover { background: #c9a227; color: #0e0a04; }
+
+#count-display {
+    color: #e8d5a3;
+    font-size: 18px;
+    min-width: 24px;
+    text-align: center;
+}
+
+/* ── RPG button ── */
+.rpg-btn {
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    color: #c9a227;
+    font-family: 'Press Start 2P', cursive;
+    font-size: clamp(8px, 1vw, 11px);
+    min-width: clamp(120px, 15vw, 200px);
+    margin-top: 12px;
+    padding: clamp(10px, 1.2vw, 15px) clamp(16px, 2.5vw, 30px);
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: background 0.15s, color 0.15s, filter 0.2s;
+}
+
+.rpg-btn:hover {
+    background: #c9a227;
+    color: #0e0a04;
+    filter: brightness(1.15);
+}
+
+/* ── Character cards grid ── */
+#character-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+}
+
+.char-card {
+    background: #140f05;
+    border: 2px solid #4a3a1a;
+    padding: clamp(12px, 1.8vw, 20px) clamp(10px, 1.4vw, 16px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    transition: border-color 0.15s;
+}
+
+.char-card:hover { border-color: #c9a227; }
+
+.char-name {
+    color: #c9a227;
+    font-size: clamp(7px, 0.9vw, 9px);
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.char-desc {
+    color: #9a8a6a;
+    font-size: clamp(6px, 0.8vw, 7px);
+    text-align: center;
+    line-height: 1.9;
+}
+
+.select-btn {
+    font-size: 7px;
+    min-width: unset;
+    padding: 8px 14px;
+    margin-top: auto;
+}
+
+.char-preview {
+    image-rendering: pixelated;
+    width: 72px;
+    height: 72px;
+}
+
+/* ── Overlay 2: Team creation ── */
+.optional {
+    color: #5a4a2a;
+    font-size: 7px;
+}
+
+.add-row {
+    display: flex;
+    gap: 10px;
+}
+
+.add-row input {
+    flex: 1;
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    color: #e8d5a3;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    padding: 10px 12px;
+    outline: none;
+}
+
+.add-row input::placeholder { color: #5a4a2a; }
+
+.add-btn {
+    font-size: 8px;
+    min-width: unset;
+    padding: 10px 14px;
+    white-space: nowrap;
+    margin-top: 0;
+}
+
+#teammate-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.teammate-item {
+    color: #e8d5a3;
+    font-size: 8px;
+    padding: 8px 12px;
+    background: #1a1209;
+    border-left: 3px solid #c9a227;
+}
+
+.btn-row {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    justify-content: center;
+}
+
+.secondary-btn {
+    border-color: #4a3a1a;
+    color: #9a8a6a;
+}
+
+.secondary-btn:hover {
+    background: #4a3a1a;
+    color: #e8d5a3;
+}
+
+/* ── Guild nameplate ── */
+.guild-nameplate {
+    background: #140f05;
+    border: 2px solid #c9a227;
+    color: #c9a227;
+    font-family: 'Press Start 2P', cursive;
+    font-size: clamp(9px, 1.2vw, 13px);
+    padding: clamp(10px, 1.5vw, 16px) clamp(12px, 1.8vw, 18px);
+    text-align: center;
+    width: 100%;
+    letter-spacing: 3px;
+}
+
+/* ── Member cards ── */
+.member-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #140f05;
+    border-left: 3px solid #c9a227;
+    padding: 8px 12px;
+}
+
+.member-avatar {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.member-name {
+    color: #e8d5a3;
+    font-size: 8px;
+    flex: 1;
+}
+
+.member-remove {
+    background: none;
+    border: 1px solid #4a3a1a;
+    color: #9a8a6a;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 7px;
+    cursor: pointer;
+    padding: 3px 7px;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.member-remove:hover {
+    border-color: #e05252;
+    color: #e05252;
+    background: none;
+}
+
+/* ── Ambient animations ── */
+
+@keyframes panelGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 6px #0e0a04, 0 0 0 9px #c9a227, 0 0 20px rgba(201,162,39,0.15);
+    }
+    50% {
+        box-shadow: 0 0 0 6px #0e0a04, 0 0 0 9px #c9a227, 0 0 55px rgba(201,162,39,0.45);
+    }
+}
+
+@keyframes titleShimmer {
+    0%   { background-position: 100% center; }
+    100% { background-position:   0% center; }
+}
+
+@keyframes diamondPulse {
+    from { color: rgba(201, 162, 39, 0.9); }
+    to   { color: rgba(201, 162, 39, 0.15); }
+}
+
+/* ── Buttons ── */
+button {
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    opacity: 1;
+}
+
+/* ── Task form ── */
+#taskForm {
+    display: none;
+    position: absolute;
+    z-index: 120;
+
+    flex-direction: column;
+    align-items: center;
+
+    width: 320px;
+    padding: 0;
+    background: transparent;
+    pointer-events: auto;
+}
+
+#taskFormTitle {
+    font-size: 10px;
+    padding: 6px 16px;
+    margin-bottom: 18px;
+
+    color: #2b1608;
+
+    background: linear-gradient(
+        to bottom,
+        #f5e2b8,
+        #e6c98d
+    );
+
+    border: 2px solid #7a5a2a;
+
+    box-shadow:
+        0 3px 0 rgba(0,0,0,0.3),
+        inset 0 0 0 1px rgba(255,255,255,0.35);
+
+    text-align: center;
+}
+
+#taskTitleInput,
+#taskDescInput {
+    width: 100%;
+    border: 2px solid #8c6a34;
+    background: rgba(255, 251, 240, 0.82);
+    color: #2c1a0d;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    line-height: 1.6;
+    outline: none;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.3),
+        0 2px 0 rgba(80, 50, 20, 0.22);
+}
+
+#taskTitleInput {
+    height: 34px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+}
+
+#taskDescInput {
+    height: 112px;
+    padding: 10px;
+    resize: none;
+    margin-bottom: 16px;
+}
+
+#taskTitleInput::placeholder,
+#taskDescInput::placeholder {
+    color: #877561;
+}
+
+#taskTitleInput:focus,
+#taskDescInput:focus {
+    border-color: #b78a40;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.35),
+        0 0 0 2px rgba(183, 138, 64, 0.18);
+}
+
+#taskFormButtons {
+    width: 100%;
+    display: grid;
+    gap: 10px;
+    justify-content: center;
+}
+
+#taskFormButtons {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+#taskFormButtons button {
+    flex: 1;
+}
+
+#taskFormButtons button {
+    width: 100%;
+    height: 34px;
+    border: 2px solid #6a451d;
+    background: #2f1c0d;
+    color: #f7e8bf;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    line-height: 1;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.28);
+    transition: transform 0.08s ease, filter 0.15s ease;
+}
+
+#taskFormButtons button:hover {
+    background: #1f1208; 
+}
+
+#taskFormButtons button:active {
+    transform: translateY(1px);
+}
+
+#submitTaskBtn {
+    background: #5c7b34;
+    border-color: #40571f;
+    color: #f3f8e3;
+}
+
+#cancelTaskBtn {
+    background: #7c5a2d;
+    border-color: #5e411d;
+    color: #fff0cf;
+}
+
+#deleteTaskBtn {
+    background: #8b2c2c;
+    border-color: #641b1b;
+    color: #fff1f1;
+}
+
+#taskCreatedBy {
+    display: none;
+    width: 100%;
+    margin-bottom: 12px;
+    text-align: center;
+    font-size: 7px;
+    line-height: 1.6;
+    color: #f3dfbb;
+    background: rgba(34, 20, 10, 0.78);
+    border: 2px solid #7a5a2a;
+    padding: 8px 10px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.24);
+}
+
+#taskDeadlineInput {
+    width: 100%;
+    height: 34px;
+    margin-bottom: 0;
+
+    border: 2px solid #8c6a34;
+    background: rgba(255, 251, 240, 0.82);
+    color: #2c1a0d;
+
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+
+    padding: 6px 8px;
+}
+
+#taskMetaRow {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+#taskMetaRow #taskDeadlineInput {
+    width: 70%;
+    margin-bottom: 0;
+}
+
+#taskMetaRow #taskPriorityInput {
+    width: 30%;
+    margin-bottom: 0;
+}
+
+#taskPriorityInput {
+    width: 100%;
+    height: 34px;
+    margin-bottom: 0;
+
+    border: 2px solid #8c6a34;
+    background: rgba(255, 251, 240, 0.82);
+    color: #2c1a0d;
+
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+
+    padding: 6px 8px;
+    outline: none;
+}
+
+#taskPriorityInput:focus {
+    border-color: #b78a40;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.35),
+        0 0 0 2px rgba(183, 138, 64, 0.18);
+}
+
+#taskForm[data-mode="cupboard-create"] #taskMetaRow,
+#taskForm[data-mode="planner-create"] #taskMetaRow {
+    flex-direction: column;
+    gap: 12px;
+}
+
+#taskForm[data-mode="cupboard-create"] #taskMetaRow #taskDeadlineInput,
+#taskForm[data-mode="cupboard-create"] #taskMetaRow #taskPriorityInput,
+#taskForm[data-mode="planner-create"] #taskMetaRow #taskDeadlineInput,
+#taskForm[data-mode="planner-create"] #taskMetaRow #taskPriorityInput {
+    flex: none;
+    width: 100%;
+}
+
+/* ── HUD: Player Card ── */
+#playerCard {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 50;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    background: #140f05;
+    border: 2px solid #c9a227;
+    padding: 14px 16px;
+    width: 180px;
+    box-shadow:
+        0 0 0 1px #0e0a04,
+        0 0 0 3px rgba(201, 162, 39, 0.35),
+        0 0 18px rgba(201, 162, 39, 0.3);
+    pointer-events: none;
+}
+
+#playerCardAvatar {
+    width: 48px;
+    height: 48px;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+}
+
+#playerCardInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+#playerCardName {
+    color: #c9a227;
+    font-size: 12px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#playerCardClass {
+    color: #9a8a6a;
+    font-size: 8px;
+}
+
+#playerCardXP {
+    color: #9a8a6a;
+    font-size: 8px;
+}
+
+/* ── HUD: Team Progress Bar ── */
+#teamProgressBar {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    width: 1200px;
+    pointer-events: none;
+}
+
+#teamBarLabel {
+    color: #c9a227;
+    font-size: 25px;
+    letter-spacing: 3px;
+    text-align: center;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+#teamXpTrack {
+    width: 100%;
+    height: 22px;
+    position: relative;
+    background: #2a2a2a;
+    border: 2px solid #c9a227;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+#teamXpFill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 0%;
+    background: #c9a227;
+    border-radius: 12px;
+    transition: width 0.5s ease;
+}
+
+#teamXpText {
+    color: #c9a227;
+    font-size: 15px;
+    letter-spacing: 1px;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+/* ── Guild Roster Popup ── */
+#guildRosterPopup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    justify-content: center;
+    align-items: center;
+    z-index: 60;
+}
+
+#guildRosterContent {
+    background: #0e0a04;
+    border: 2px solid #c9a227;
+    box-shadow: 0 0 0 4px #0e0a04, 0 0 0 6px #c9a227, 0 0 30px rgba(201,162,39,0.3);
+    padding: 32px 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+#guildRosterTitle {
+    color: #c9a227;
+    font-size: 11px;
+    letter-spacing: 2px;
+}
+
+#guildRosterSub {
+    color: #9a8a6a;
+    font-size: 7px;
+    letter-spacing: 1px;
+}
+
+/* ── Cupboard Modal: My Tasks ── */
+#cupboardModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    justify-content: center;
+    align-items: center;
+    z-index: 60;
+}
+
+#cupboardModalContent {
+    background: #0e0a04;
+    border: 2px solid #c9a227;
+    box-shadow: 0 0 0 4px #0e0a04, 0 0 0 6px #c9a227, 0 0 30px rgba(201,162,39,0.3);
+    padding: 28px 36px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: clamp(340px, 55vw, 680px);
+    max-height: 80vh;
+}
+
+#cupboardModalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#cupboardModalTitle {
+    color: #c9a227;
+    font-size: 12px;
+    letter-spacing: 2px;
+}
+
+#cupboardClose {
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    color: #c9a227;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+
+#cupboardClose:hover {
+    background: #c9a227;
+    color: #0e0a04;
+}
+
+#cupboardSuccessMsg {
+    display: none;
+    background: #1a3a10;
+    border: 2px solid #4caf50;
+    color: #a5e887;
+    font-size: 8px;
+    padding: 10px 14px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+#cupboardTaskList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    overflow-y: auto;
+    max-height: 55vh;
+    padding-right: 4px;
+    align-content: flex-start;
+}
+
+#cupboardTaskList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#cupboardTaskList::-webkit-scrollbar-track {
+    background: #1a1209;
+}
+
+#cupboardTaskList::-webkit-scrollbar-thumb {
+    background: #c9a227;
+}
+
+.cupboard-empty {
+    color: #9a8a6a;
+    font-size: 7px;
+    line-height: 2;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.cupboard-task-card {
+    background: #140f05;
+    border: 2px solid #4a3a1a;
+    padding: 14px 16px;
+    width: 180px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 0.15s;
+}
+
+.cupboard-card-high:hover {
+    box-shadow:
+        0 0 0 2px rgba(224, 82, 82, 0.92),
+        0 0 18px rgba(224, 82, 82, 0.92);
+}
+
+.cupboard-card-med:hover {
+    box-shadow:
+        0 0 0 2px rgba(201, 162, 39, 0.92),
+        0 0 18px rgba(201, 162, 39, 0.92);
+}
+
+.cupboard-card-low:hover {
+    box-shadow:
+        0 0 0 2px rgba(75, 143, 226, 0.92),
+        0 0 18px rgba(75, 143, 226, 0.92);
+}
+
+.cupboard-task-title {
+    color: #c9a227;
+    font-size: 9px;
+    letter-spacing: 1px;
+    line-height: 1.55;
+
+    margin-bottom: 6px;
+}
+
+.cupboard-task-desc {
+    color: #a08a5a;
+    font-size: 7px;
+    line-height: 1.8;
+}
+
+.cupboard-task-deadline {
+    color: #e05252;
+    font-size: 7px;
+}
+
+.cupboard-task-creator {
+    color: #9a8a6a;
+    font-size: 6px;
+    opacity: 0.85;
+}
+
+.cupboard-task-status {
+    color: #c9a227;
+    font-size: 6px;
+    letter-spacing: 1px;
+}
+
+.cupboard-complete-btn {
+    align-self: flex-start;
+    background: #1e4d1a;
+    border: 2px solid #4caf50;
+    color: #a5e887;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 7px;
+    padding: 8px 14px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.15s, color 0.15s;
+    margin-top: 4px;
+}
+
+.cupboard-complete-btn:hover:not(:disabled) {
+    background: #4caf50;
+    color: #0e1a0a;
+}
+
+.cupboard-complete-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+#cupboardHeaderButtons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#cupboardAddTask {
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    color: #c9a227;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 7px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+#cupboardAddTask:hover {
+    background: #c9a227;
+    color: #0e0a04;
+}
+
+.cupboard-task-card {
+    padding: 16px 18px;
+    width: 230px;
+    gap: 10px;
+}
+
+.cupboard-task-desc {
+    color: #c9ad7a;
+    font-size: 6px;
+    line-height: 1.75;
+    margin-bottom: 6px;
+}
+
+.cupboard-task-priority {
+    margin-top: 2px;
+    margin-bottom: 4px;
+    font-size: 6px;
+    padding: 7px 10px;
+}
+
+.cupboard-task-deadline {
+    color: #ff6b6b;
+    font-size: 6px;
+    line-height: 1.5;
+    margin-top: 4px;
+}
+
+.cupboard-task-creator {
+    color: #9a8a6a;
+    font-size: 6px;
+    line-height: 1.5;
+    margin-top: 2px;
+}
+
+.cupboard-task-status {
+    color: #ffd166;
+    font-size: 6px;
+    line-height: 1.6;
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+
+.cupboard-complete-btn {
+    margin-top: 6px;
+    align-self: stretch;
+    text-align: center;
+    font-size: 7px;
+    padding: 10px 12px;
+}
+
+/* ── Cupboard create task form style ── */
+#taskForm[data-mode="cupboard-create"] {
+    background: rgba(14, 10, 4, 0.96);
+    border: 2px solid #c9a227;
+    box-shadow:
+        0 0 0 4px #0e0a04,
+        0 0 0 6px #c9a227,
+        0 0 24px rgba(201,162,39,0.28);
+    padding: 22px 22px 18px;
+    width: 360px;
+}
+
+#taskForm[data-mode="cupboard-create"] #taskFormTitle {
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    color: #c9a227;
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    box-shadow: none;
+}
+
+#taskForm[data-mode="cupboard-create"] #taskTitleInput,
+#taskForm[data-mode="cupboard-create"] #taskDescInput,
+#taskForm[data-mode="cupboard-create"] #taskDeadlineInput,
+#taskForm[data-mode="cupboard-create"] #taskPriorityInput {
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    color: #e8d5a3;
+    box-shadow: none;
+}
+
+#taskForm[data-mode="cupboard-create"] #taskTitleInput::placeholder,
+#taskForm[data-mode="cupboard-create"] #taskDescInput::placeholder {
+    color: #7f6a3c;
+}
+
+#taskForm[data-mode="cupboard-create"] #taskTitleInput:focus,
+#taskForm[data-mode="cupboard-create"] #taskDescInput:focus,
+#taskForm[data-mode="cupboard-create"] #taskDeadlineInput:focus {
+    border-color: #ffe08a;
+    box-shadow: 0 0 0 2px rgba(201,162,39,0.18);
+}
+
+#taskForm[data-mode="cupboard-create"] #taskFormButtons {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* Make ALL buttons consistent in cupboard create mode */
+#taskForm[data-mode="cupboard-create"] #taskFormButtons button {
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    color: #c9a227;
+}
+
+/* Hover = gold highlight */
+#taskForm[data-mode="cupboard-create"] #taskFormButtons button:hover {
+    background: #c9a227;
+    color: #0e0a04;
+}
+
+#taskForm[data-mode="cupboard-create"] #submitTaskBtn:hover,
+#taskForm[data-mode="cupboard-create"] #cancelTaskBtn:hover {
+    background: #c9a227;
+    color: #0e0a04;
+}
+
+#taskForm[data-mode="cupboard-create"] #deleteTaskBtn {
+    display: none !important;
+}
+
+.cupboard-task-priority {
+    font-size: 6px;
+    letter-spacing: 1px;
+    padding: 6px 8px;
+    border: 2px solid transparent;
+    width: fit-content;
+}
+/* HIGH = red glow */
+.cupboard-card-high {
+    border: 2px solid #e05252;
+    box-shadow:
+        0 0 0 2px rgba(224, 82, 82, 0.25),
+        0 0 14px rgba(224, 82, 82, 0.35);
+}
+
+/* MED = gold glow */
+.cupboard-card-med {
+    border: 2px solid #c9a227;
+    box-shadow:
+        0 0 0 2px rgba(201, 162, 39, 0.25),
+        0 0 14px rgba(201, 162, 39, 0.35);
+}
+
+/* LOW = blue glow */
+.cupboard-card-low {
+    border: 2px solid #4b8fe2;
+    box-shadow:
+        0 0 0 2px rgba(75, 143, 226, 0.25),
+        0 0 14px rgba(75, 143, 226, 0.35);
+}
+
+
+/* ── Guild Roster ── */
+#guildRosterContent {
+    min-width: 520px;
+    max-width: 760px;
+    max-height: 80vh;
+}
+
+#guildBalanceSummary {
+    color: #e8d5a3;
+    font-size: 7px;
+    line-height: 1.8;
+    text-align: center;
+    padding: 8px 12px;
+    background: #140f05;
+    border: 2px solid #4a3a1a;
+    width: 100%;
+}
+
+#guildRosterList {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 45vh;
+    overflow-y: auto;
+}
+
+.guild-roster-card {
+    background: #140f05;
+    border: 2px solid #4a3a1a;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.guild-roster-name {
+    color: #c9a227;
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.guild-roster-meta {
+    color: #9a8a6a;
+    font-size: 6px;
+}
+
+.guild-roster-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: #e8d5a3;
+    font-size: 7px;
+}
+
+.guild-roster-balance {
+    color: #ffd166;
+    font-size: 7px;
+    letter-spacing: 1px;
+}
+
+.guild-roster-empty {
+    color: #9a8a6a;
+    font-size: 7px;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.guild-balance-balanced {
+    color: #a5e887 !important;
+    border-color: #4caf50 !important;
+    background: rgba(26, 58, 16, 0.9) !important;
+}
+
+.guild-balance-uneven {
+    color: #ff9b9b !important;
+    border-color: #e05252 !important;
+    background: rgba(58, 16, 16, 0.9) !important;
+}
+
+.guild-roster-balance {
+    font-size: 7px;
+    letter-spacing: 1px;
+    padding: 6px 8px;
+    border: 2px solid transparent;
+    width: fit-content;
+}
+
+.guild-balance-card-balanced {
+    color: #a5e887;
+    background: rgba(26, 58, 16, 0.9);
+    border-color: #4caf50;
+}
+
+.guild-balance-card-overloaded {
+    color: #ff9b9b;
+    background: rgba(58, 16, 16, 0.9);
+    border-color: #e05252;
+}
+
+.guild-balance-card-needs-help {
+    color: #9fd3ff;
+    background: rgba(16, 28, 58, 0.9);
+    border-color: #4b8fe2;
+}
+
+.guild-roster-self {
+    border: 2px solid #ffe08a;
+    box-shadow:
+    0 0 0 2px rgba(255, 224, 138, 0.25),
+        0 0 12px rgba(255, 224, 138, 0.35);
+    background: rgba(40, 28, 10, 0.95);
+}
+
+.guild-roster-suggested {
+    border: 2px solid #6db7ff;
+    box-shadow:
+        0 0 0 2px rgba(109, 183, 255, 0.22),
+        0 0 14px rgba(109, 183, 255, 0.35);
+}
+
+.guild-roster-self.guild-roster-suggested {
+    border: 2px solid #ffe08a;
+    box-shadow:
+        0 0 0 2px rgba(255, 224, 138, 0.25),
+        0 0 0 5px rgba(109, 183, 255, 0.18),
+        0 0 16px rgba(255, 224, 138, 0.35),
+        0 0 22px rgba(109, 183, 255, 0.22);
+}
+
+/* LOW = blue */
+.cupboard-priority-low {
+    color: #9fd3ff;
+    background: rgba(16, 28, 58, 0.9);
+    border-color: #4b8fe2;
+}
+
+/* MED = gold */
+.cupboard-priority-med {
+    color: #ffd166;
+    background: rgba(58, 40, 16, 0.9);
+    border-color: #caa56b;
+}
+
+/* HIGH = red */
+.cupboard-priority-high {
+    color: #ff9b9b;
+    background: rgba(58, 16, 16, 0.9);
+    border-color: #e05252;
+}
+
+/* ── Guild Mood bar ── */
+#guildMoodBar {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+#guildMoodLabel {
+    color: #c9a227;
+    font-size: 7px;
+}
+
+.guild-mood-btn {
+    background: #140f05;
+    border: 2px solid #4a3a1a;
+    color: #e8d5a3;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 6px;
+    padding: 8px 10px;
+    cursor: pointer;
+}
+
+.guild-mood-btn:hover {
+    filter: brightness(1.12);
+}
+
+.guild-mood-btn.active {
+    border-color: #c9a227;
+    box-shadow: 0 0 0 2px rgba(201,162,39,0.22);
+}
+
+.guild-mood-fine {
+    color: #a5e887;
+}
+
+.guild-mood-busy {
+    color: #ffd166;
+}
+
+.guild-mood-overwhelmed {
+    color: #ff9b9b;
+}
+
+@keyframes guildOverwhelmedPulse {
+    0% {
+        box-shadow:
+            0 0 0 2px rgba(224, 82, 82, 0.18),
+            0 0 10px rgba(224, 82, 82, 0.18);
+    }
+    100% {
+        box-shadow:
+            0 0 0 2px rgba(224, 82, 82, 0.38),
+            0 0 18px rgba(224, 82, 82, 0.38);
+    }
+}
+
+.guild-roster-overwhelmed {
+    border: 2px solid #e05252 !important;
+    background: rgba(58, 16, 16, 0.96) !important;
+    animation: guildOverwhelmedPulse 1s infinite alternate;
+}
+
+.guild-roster-overwhelmed.guild-roster-self,
+.guild-roster-overwhelmed.guild-roster-suggested,
+.guild-roster-overwhelmed.guild-roster-self.guild-roster-suggested {
+    border: 2px solid #e05252 !important;
+    background: rgba(58, 16, 16, 0.96) !important;
+}
+
+.guild-top {
+  color: #ffe08a;
+}
+
+.guild-why-not-me {
+    margin-top: 8px;
+    color: #ffe08a;
+    font-size: 6px;
+    line-height: 1.8;
+}
+
+/* Center expand animation */
+@keyframes soloLevelingOpen {
+    0% {
+        transform: scaleX(0.03);
+        opacity: 0;
+        filter: brightness(1.6);
+    }
+    55% {
+        transform: scaleX(1.06);
+        opacity: 1;
+        filter: brightness(1.1);
+    }
+    100% {
+        transform: scaleX(1);
+        opacity: 1;
+        filter: brightness(1);
+    }
+}
+
+.popup-open-horizontal {
+    transform-origin: center center;
+    animation: soloLevelingOpen 0.22s ease-out;
+}
+
+/* Close animation */
+@keyframes soloLevelingClose {
+    0% {
+        transform: scaleX(1);
+        opacity: 1;
+        filter: brightness(1);
+    }
+    100% {
+        transform: scaleX(0.03);
+        opacity: 0;
+        filter: brightness(1.3);
+    }
+}
+
+.popup-close-horizontal {
+    transform-origin: center center;
+    animation: soloLevelingClose 0.18s ease-in forwards;
+}
+
+/* Ai assist */
+#aiAssistBtn {
+    background: #243b63;
+    border: 2px solid #1a2945;
+    color: #eaf3ff;
+}
+
+#aiAssistBtn:hover {
+    background: #1a2945;
+}
+
+/* ── Planner Modal ── */
+#plannerModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    justify-content: center;
+    align-items: center;
+    z-index: 65;
+}
+
+#plannerModalContent {
+    background: #0e0a04;
+    border: 2px solid #c9a227;
+    box-shadow: 0 0 0 4px #0e0a04, 0 0 0 6px #c9a227, 0 0 30px rgba(201,162,39,0.3);
+
+    width: clamp(420px, 65vw, 900px);
+    height: min(88vh, 820px);
+
+    padding: clamp(14px, 2vw, 28px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 1.5vw, 16px);
+
+    min-height: 0;
+    overflow: hidden;
+}
+
+#plannerModalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#plannerModalTitle {
+    color: #c9a227;
+    font-size: 12px;
+    letter-spacing: 2px;
+}
+
+#plannerClose {
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    color: #c9a227;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#plannerClose:hover {
+    background: #c9a227;
+    color: #0e0a04;
+}
+
+#plannerModalBody {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(120px, 0.9fr) minmax(220px, 1.4fr) auto auto;
+    gap: clamp(8px, 1.4vh, 14px);
+
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.planner-big-btn-row {
+    display: flex;
+    justify-content: center;
+}
+
+#plannerAutoAssignAll {
+    background: #243b63;
+    border: 2px solid #1a2945;
+    color: #f3f7ff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    padding: 12px 16px;
+}
+
+#plannerAutoAssignAll:hover {
+    background: #1a2945;
+}
+
+.planner-section-title {
+    color: #c9a227;
+    font-size: 8px;
+}
+
+#plannerTaskList,
+#plannerDraftList {
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: clamp(10px, 1.5vw, 16px);
+}
+
+.planner-task-card,
+.planner-draft-card {
+    width: 100%;
+    max-width: 100%;
+}
+
+#plannerTaskList {
+    opacity: 0.78;
+}
+
+#plannerDraftList {
+    min-height: 180px;
+}
+
+#plannerCreateTask {
+    background: #2f1c0d;
+    border: 2px solid #6a451d;
+    color: #f7e8bf;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    padding: 12px 16px;
+}
+
+#plannerCreateTask:hover {
+    background: #1f1208;
+}
+
+.planner-empty {
+    color: #9a8a6a;
+    font-size: 7px;
+    line-height: 2;
+    text-align: center;
+    padding: 20px 0;
+}
+
+#plannerDraftActions {
+    flex-shrink: 0;
+}
+
+.planner-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+    flex: 1;
+    margin-bottom: 8px;
+}
+
+.planner-task-card {
+    background: #140f05;
+    border: 2px solid #4a3a1a;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 0.15s;
+    margin-bottom: 12px;
+}
+
+.planner-card-high {
+    border: 2px solid #e05252;
+    box-shadow:
+        0 0 0 2px rgba(224, 82, 82, 0.25),
+        0 0 14px rgba(224, 82, 82, 0.35);
+}
+
+.planner-card-med {
+    border: 2px solid #c9a227;
+    box-shadow:
+        0 0 0 2px rgba(201, 162, 39, 0.25),
+        0 0 14px rgba(201, 162, 39, 0.35);
+}
+
+.planner-card-low {
+    border: 2px solid #4b8fe2;
+    box-shadow:
+        0 0 0 2px rgba(75, 143, 226, 0.25),
+        0 0 14px rgba(75, 143, 226, 0.35);
+}
+
+.planner-task-title {
+    color: #c9a227 !important;
+    font-size: clamp(7px, 1vw, 10px);
+    line-height: 1.8;
+}
+
+.planner-task-desc,
+.planner-task-reason,
+.planner-task-assignee,
+.planner-task-category,
+.planner-task-warning {
+    font-size: clamp(5px, 0.75vw, 7px);
+    line-height: 1.8;
+}
+
+.planner-task-desc {
+    color: #a08a5a;
+    font-size: 7px;
+    line-height: 1.8;
+}
+
+.planner-task-deadline {
+    color: #e05252;
+    font-size: 7px;
+}
+
+.planner-task-creator {
+    color: #9a8a6a;
+    font-size: 6px;
+    opacity: 0.85;
+}
+
+.planner-task-status {
+    color: #c9a227;
+    font-size: 6px;
+    letter-spacing: 1px;
+}
+
+.planner-task-priority {
+    font-size: 6px;
+    letter-spacing: 1px;
+    padding: 6px 8px;
+    border: 2px solid transparent;
+    width: fit-content;
+}
+
+.planner-priority-low {
+    color: #9fd3ff;
+    background: rgba(16, 28, 58, 0.9);
+    border-color: #4b8fe2;
+}
+
+.planner-priority-med {
+    color: #ffd166;
+    background: rgba(58, 40, 16, 0.9);
+    border-color: #caa56b;
+}
+
+.planner-priority-high {
+    color: #ff9b9b;
+    background: rgba(58, 16, 16, 0.9);
+    border-color: #e05252;
+}
+
+.planner-assign-btn {
+    align-self: flex-start;
+    background: #243b63;
+    border: 2px solid #1a2945;
+    color: #f3f7ff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 7px;
+    padding: 8px 14px;
+    letter-spacing: 1px;
+    margin-top: 4px;
+}
+
+.planner-assign-btn:hover {
+    background: #1a2945;
+}
+
+#taskForm[data-mode="planner-create"] {
+    background: rgba(14, 10, 4, 0.96);
+    border: 2px solid #c9a227;
+    box-shadow:
+        0 0 0 4px #0e0a04,
+        0 0 0 6px #c9a227,
+        0 0 24px rgba(201,162,39,0.28);
+    padding: 22px 22px 18px;
+    width: 360px;
+}
+
+#taskForm[data-mode="planner-create"] #taskFormTitle {
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    color: #c9a227;
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    box-shadow: none;
+}
+
+#taskForm[data-mode="planner-create"] #taskTitleInput,
+#taskForm[data-mode="planner-create"] #taskDescInput,
+#taskForm[data-mode="planner-create"] #taskDeadlineInput,
+#taskForm[data-mode="planner-create"] #taskPriorityInput {
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    color: #e8d5a3;
+    box-shadow: none;
+}
+
+#taskForm[data-mode="planner-create"] #taskTitleInput::placeholder,
+#taskForm[data-mode="planner-create"] #taskDescInput::placeholder {
+    color: #7f6a3c;
+}
+
+#taskForm[data-mode="planner-create"] #taskTitleInput:focus,
+#taskForm[data-mode="planner-create"] #taskDescInput:focus,
+#taskForm[data-mode="planner-create"] #taskDeadlineInput:focus,
+#taskForm[data-mode="planner-create"] #taskPriorityInput:focus {
+    border-color: #ffe08a;
+    box-shadow: 0 0 0 2px rgba(201,162,39,0.18);
+}
+
+#taskForm[data-mode="planner-create"] #taskFormButtons button {
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    color: #c9a227;
+}
+
+#taskForm[data-mode="planner-create"] #taskFormButtons button:hover {
+    background: #c9a227;
+    color: #0e0a04;
+}
+
+#taskForm[data-mode="planner-create"] #deleteTaskBtn {
+    display: none !important;
+}
+
+
+.planner-draft-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+#plannerAcceptAll,
+#plannerDeclineAll {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    padding: 12px 16px;
+}
+
+#plannerAcceptAll {
+    background: #1e4d1a;
+    border: 2px solid #4caf50;
+    color: #a5e887;
+}
+
+#plannerAcceptAll:hover {
+    background: #4caf50;
+    color: #0e1a0a;
+}
+
+#plannerDeclineAll {
+    background: #7c2d2d;
+    border: 2px solid #e05252;
+    color: #ffd5d5;
+}
+
+#plannerDeclineAll:hover {
+    background: #e05252;
+    color: #2a0a0a;
+}
+
+.planner-draft-card {
+    background: #140f05;
+    border: 2px solid #4a3a1a;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.planner-task-category {
+    color: #9fd3ff;
+    font-size: 6px;
+    letter-spacing: 1px;
+}
+
+.planner-task-assignee {
+    color: #ffd166;
+    font-size: 6px;
+    letter-spacing: 1px;
+}
+
+.planner-task-reason {
+    color: #a08a5a;
+    font-size: 6px;
+    line-height: 1.7;
+}
+
+.planner-draft-member-select {
+    background: #1a1209;
+    border: 2px solid #c9a227;
+    color: #e8d5a3;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 7px;
+    padding: 8px 10px;
+    outline: none;
+    width: 100%;
+}
+
+.planner-draft-member-select:focus {
+    border-color: #ffe08a;
+}
+
+.planner-draft-group-header {
+    color: #ffe08a;
+    font-size: 7px;
+    letter-spacing: 2px;
+    padding: 6px 10px;
+    margin: 4px 0 8px;
+    background: rgba(40, 28, 10, 0.95);
+    border: 2px solid #c9a227;
+}
+
+.planner-task-confidence {
+    font-size: 6px;
+    letter-spacing: 1px;
+    padding: 6px 8px;
+    border: 2px solid transparent;
+    width: fit-content;
+}
+
+.planner-confidence-high {
+    color: #a5e887;
+    background: rgba(26, 58, 16, 0.9);
+    border-color: #4caf50;
+}
+
+.planner-confidence-medium {
+    color: #ffd166;
+    background: rgba(58, 40, 16, 0.9);
+    border-color: #caa56b;
+}
+
+.planner-confidence-low {
+    color: #ff9b9b;
+    background: rgba(58, 16, 16, 0.9);
+    border-color: #e05252;
+}
+
+.planner-reason-tags {
+    flex-wrap: wrap;
+}
+
+.planner-reason-tag {
+    font-size: 6px;
+    letter-spacing: 1px;
+    padding: 5px 7px;
+    color: #9fd3ff;
+    background: rgba(16, 28, 58, 0.9);
+    border: 2px solid #4b8fe2;
+}
+
+.planner-reason-tags {
+    margin-bottom: 6px;
+}
+
+.planner-draft-member-select {
+    font-size: clamp(6px, 0.8vw, 8px);
+    height: 36px;
+}
+
+#plannerTaskList {
+    opacity: 0.78;
+}
+
+.planner-section {
+    margin-bottom: 8px;
+}
+
+.planner-task-warning {
+    color: #ffd166;
+    font-size: 6px;
+    line-height: 1.7;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.planner-task-warning-busy {
+    color: #ffd166;
+    background: none;
+    border: none;
+}
+
+#plannerProjectedFairness {
+    max-height: 13vh;
+    overflow-y: auto;
+}
+
+
+.planner-fairness-summary {
+    color: #c9a227;
+    font-size: 7px;
+    margin-bottom: 10px;
+    line-height: 1.8;
+}
+
+.planner-fairness-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 4px 0;
+    border-top: none;
+}
+
+.planner-fairness-name {
+    color: #e8d5a3;
+    font-size: 7px;
+}
+
+.planner-fairness-shift {
+    color: #9fd3ff;
+    font-size: 6px;
+    text-align: right;
+}
+
+.planner-fairness-good {
+    color: #a5e887;
+}
+
+.planner-fairness-bad {
+    color: #ff9b9b;
+}
+
+#plannerTaskList::-webkit-scrollbar,
+#plannerDraftList::-webkit-scrollbar,
+#plannerProjectedFairness::-webkit-scrollbar {
+    width: 6px;
+}
+
+#plannerTaskList::-webkit-scrollbar-track,
+#plannerDraftList::-webkit-scrollbar-track,
+#plannerProjectedFairness::-webkit-scrollbar-track {
+    background: #1a1209;
+}
+
+#plannerTaskList::-webkit-scrollbar-thumb,
+#plannerDraftList::-webkit-scrollbar-thumb,
+#plannerProjectedFairness::-webkit-scrollbar-thumb {
+    background: #c9a227;
+}
+
+@media (max-width: 900px) {
+    #plannerModalContent {
+        width: 96vw;
+        height: 92vh;
+        padding: 14px;
+    }
+
+    #plannerModalTitle {
+        font-size: 9px;
+    }
+
+    #plannerCreateTask,
+    #plannerAutoAssignAll,
+    #plannerAcceptAll,
+    #plannerDeclineAll {
+        font-size: 6px;
+        padding: 10px 12px;
+    }
+
+    .planner-draft-actions {
+        flex-wrap: wrap;
+    }
+}
+
+#contextHUD {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 80;
+
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+
+    background: rgba(14, 10, 4, 0.92);
+    border: 2px solid #c9a227;
+    padding: 12px 14px;
+    width: 220px;
+
+    box-shadow:
+        0 0 0 2px #0e0a04,
+        0 0 10px rgba(201,162,39,0.3);
+}
+
+#contextTitle {
+    color: #c9a227;
+    font-size: 8px;
+    line-height: 1.4;
+}
+
+#contextLabel {
+    font-size: 6px;
+    color: #e8d5a3;
+    line-height: 1.8;
+}
+
+#contextHintKey {
+    color: #ffd166;
+    font-size: 6px;
+    line-height: 1.6;
+}
+
+#taskForm {
+    max-width: 88vw;
+}
+
+#taskTitleInput,
+#taskDescInput,
+#taskDeadlineInput,
+#taskPriorityInput,
+#taskFormButtons button {
+    font-size: clamp(6px, 0.8vw, 8px);
+}
+
+#taskFormTitle {
+    font-size: clamp(7px, 0.9vw, 10px);
+}
+
+#taskDescInput {
+    height: clamp(82px, 13vh, 112px);
+}
+
+@media (max-width: 800px) {
+    #taskMetaRow {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #taskMetaRow #taskDeadlineInput,
+    #taskMetaRow #taskPriorityInput {
+        width: 100%;
+    }
+
+    #taskFormButtons {
+        gap: 6px;
+    }
+
+    #taskFormButtons button {
+        font-size: 6px;
+        height: 30px;
+    }
+}
+
+/* ── GLOBAL SCROLLBAR (Login Page) ── */
+
+/* Chrome, Edge, Safari */
+.overlay-panel::-webkit-scrollbar {
+    width: 10px;
+}
+
+.overlay-panel::-webkit-scrollbar-track {
+    background: #140f05; /* dark brown/black */
+}
+
+.overlay-panel::-webkit-scrollbar-thumb {
+    background: #c9a227;
+    border: 2px solid #0e0a04;
+    box-shadow: 0 0 6px rgba(201,162,39,0.5);
+}
+
+.overlay-panel::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+        to bottom,
+        #ffe08a,
+        #c9a227
+    );
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #c9a227 #140f05;
+}

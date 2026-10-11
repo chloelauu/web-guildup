@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuildUp!</title>
+</head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+
+<body>
+    <!-- ── Overlay 1: Login ── -->
+    <div id="overlay1" class="overlay">
+        <div class="overlay-panel">
+            <h1 class="overlay-title">GuildUp!</h1>
+            <p class="overlay-subtitle">Welcome, adventurer.<br>Sign in to enter the hall.</p>
+            <div class="gold-divider">◆</div>
+            <div class="form-group divider-gap">
+                <label for="member-name"><span class="label-arrow">▶</span> Your Name</label>
+                <input type="text" id="member-name" placeholder="Enter your name..." autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="member-email"><span class="label-arrow">▶</span> Email</label>
+                <input type="email" id="member-email" placeholder="Enter your email..." autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="team-name-input"><span class="label-arrow">▶</span> Team Name</label>
+                <input type="text" id="team-name-input" placeholder="Enter team name..." autocomplete="off">
+            </div>
+            <button class="rpg-btn" id="login-submit">ENTER</button>
+        </div>
+    </div>
+
+    <!-- ── Overlay 2: Team Creation ── -->
+    <div id="overlay2" class="overlay" style="display: none;">
+        <div class="overlay-panel">
+            <h1 class="overlay-title">⚔ Your Guild ⚔</h1>
+            <div id="guild-nameplate" class="guild-nameplate"></div>
+            <div class="gold-divider">◆</div>
+            <div class="form-group">
+                <label><span class="label-arrow">▶</span> Guild Roster <span class="optional">(optional)</span></label>
+                <div class="add-row">
+                    <input type="text" id="teammate-input" placeholder="Teammate name..." maxlength="20" autocomplete="off">
+                    <button class="rpg-btn add-btn" id="add-teammate">ADD</button>
+                </div>
+                <ul id="teammate-list"></ul>
+            </div>
+            <div class="btn-row">
+                <button class="rpg-btn secondary-btn" id="skip-team">SKIP</button>
+                <button class="rpg-btn" id="create-team">CREATE GUILD</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Overlay 3: Character Selection ── -->
+    <div id="overlay3" class="overlay" style="display: none;">
+        <div class="overlay-panel">
+            <h1 class="overlay-title">Choose Your Class</h1>
+            <p id="char-greeting" class="overlay-subtitle"></p>
+            <div class="gold-divider">◆</div>
+            <div id="character-options"></div>
+        </div>
+    </div>
+
+    <div style="display: inline-block; position: relative;">
+        <div id="overlappingDiv" style="
+            background-color: black;
+            top: 0; right: 0; bottom: 0; left: 0;
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;">
+        </div>
+
+        <canvas></canvas>
+
+        <!-- TASK FORM -->
+        <div id="taskForm">
+            <div id="taskFormTitle">Create Pickup Task</div>
+            <div id="taskCreatedBy" style="display: none;"></div>
+            <input id="taskTitleInput" type="text" maxlength="40" placeholder="Task title">
+            <textarea id="taskDescInput" maxlength="160" placeholder="Task description"></textarea>
+            <div id="taskMetaRow">
+                <input id="taskDeadlineInput" type="datetime-local">
+
+                <select id="taskPriorityInput">
+                    <option value="HIGH">HIGH</option>
+                    <option value="MED" selected>MED</option>
+                    <option value="LOW">LOW</option>
+                </select>
+            </div>
+
+            <div id="taskFormButtons">
+                <button id="deleteTaskBtn" style="display: none;">Delete</button>
+                <button id="aiAssistBtn" type="button">AI Assist</button>
+                <button id="cancelTaskBtn">Cancel</button>
+                <button id="submitTaskBtn">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── HUD: Player Card (top-left) ── -->
+    <div id="playerCard">
+        <canvas id="playerCardAvatar"></canvas>
+        <div id="playerCardInfo">
+            <div id="playerCardName"></div>
+            <div id="playerCardClass"></div>
+            <div id="playerCardXP"></div>
+        </div>
+    </div>
+
+    <!-- ── HUD: Context Card (top-right) ── -->
+    <div id="contextHUD">
+        <div id="contextTitle"></div>
+        <div id="contextLabel"></div>
+        <div id="contextHintKey">Press E</div>
+    </div>
+
+    <!-- ── HUD: Team Progress Bar (bottom-center) ── -->
+    <div id="teamProgressBar">
+        <div id="teamBarLabel"></div>
+        <div id="teamXpTrack">
+            <div id="teamXpFill"></div>
+        </div>
+        <div id="teamXpText">0 / 100 XP</div>
+    </div>
+
+    <!-- ── Popup: Cupboard / My Tasks ── -->
+    <div id="cupboardModal">
+        <div id="cupboardModalContent">
+            <div id="cupboardModalHeader">
+                <div id="cupboardModalTitle">My Tasks</div>
+                <div id="cupboardHeaderButtons">
+                    <button id="cupboardAddTask">ADD TASK</button>
+                    <button id="cupboardClose">X</button>
+                </div>
+            </div>
+            <div id="cupboardSuccessMsg"></div>
+            <div id="cupboardTaskList"></div>
+        </div>
+    </div>
+
+    <!-- ── Popup: Planner (main table interaction) ── -->
+    <div id="plannerModal">
+        <div id="plannerModalContent">
+            <div id="plannerModalHeader">
+                <div id="plannerModalTitle">Assignment Planner</div>
+                <button id="plannerClose">X</button>
+            </div>
+
+            <div class="planner-big-btn-row">
+                <button id="plannerCreateTask">CREATE UNASSIGNED TASK</button>
+            </div>
+
+            <div id="plannerModalBody">
+                <div class="planner-big-btn-row">
+                    <button id="plannerAutoAssignAll">AUTO ASSIGN ALL</button>
+                </div>
+
+                <div class="planner-section">
+                    <div class="planner-section-title">Unassigned Tasks</div>
+                    <div id="plannerTaskList">
+                        No unassigned tasks yet.
+                    </div>
+                </div>
+
+                <div class="planner-section">
+                    <div class="planner-section-title">Draft Assignment Plan</div>
+                    <div id="plannerDraftList">
+                        No draft assignments yet.
+                    </div>
+                </div>
+
+                <div class="planner-section">
+                    <div class="planner-section-title">Projected Fairness</div>
+                    <div id="plannerProjectedFairness">
+                        No draft assignments yet.
+                    </div>
+                </div>
+
+                <div class="planner-big-btn-row planner-draft-actions" id="plannerDraftActions" style="display: none;">
+                    <button id="plannerAcceptAll">ACCEPT ALL</button>
+                    <button id="plannerDeclineAll">DECLINE ALL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Popup: Guild Roster (main table interaction) ── -->
+    <div id="guildRosterPopup">
+        <div id="guildRosterContent">
+            <div id="guildRosterTitle">Guild Fairness Tracker</div>
+            <div id="guildRosterSub">
+                Tracks workload balance and suggests who should take the next task
+            </div>
+            
+            <div id="guildMoodBar">
+            <span id="guildMoodLabel">My mood:</span>
+                <button class="guild-mood-btn" data-mood="fine">🙂 FINE</button>
+                <button class="guild-mood-btn" data-mood="busy">😐 BUSY</button>
+                <button class="guild-mood-btn" data-mood="overwhelmed">😵 OVERWHELMED</button>
+            </div>
+
+            <div id="guildBalanceSummary"></div>
+            <div id="guildRosterList"></div>
+
+            <button class="rpg-btn" id="guildRosterClose">CLOSE</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"
+        integrity="sha512-xi/RZRIF/S0hJ+yJJYuZ5yk6/8pCiRlEXZzoguSMl+vk2i3m6UjUO/WcZ11blRL/O+rnj94JRGwt/CHbc9+6EA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"
+        integrity="sha512-H6cPm97FAsgIKmlBA4s774vqoN24V5gSQL4yBTDOY2su2DeXZVhQPxFK4P6GPdnZqM9fg1G3cMv5wD7e6cFLZQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="data/audio.js"></script>
+    <script src="data/collisionZones.js"></script>
+    <script src="classes.js"></script>
+    <script src="supabase.js"></script>
+    <script src="overlays.js"></script>
+    <script src="bulletinBoard.js"></script>
+    <script src="cupboard.js"></script>
+    <script src="plannerTable.js"></script>
+    <script src="decoAssets.js"></script>
+
+    <script src="index.js"></script>
+</body>
+
+</html>
