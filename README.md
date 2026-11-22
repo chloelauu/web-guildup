@@ -2,7 +2,7 @@
 
 A multiplayer task manager that plays like a co-op RPG. Your team shares a fantasy guild hall: walk around with WASD, see teammates move in real time, and manage tasks by walking up to objects in the room.
 
-![GuildUp sign-in](Menu.png)
+![GuildUp sign-in](Menu.jpg)
 
 **Live demo:** https://guildup.netlify.app
 
